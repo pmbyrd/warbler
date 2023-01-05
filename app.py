@@ -108,13 +108,11 @@ def login():
 
     return render_template('users/login.html', form=form)
 
-
+#Todo implement logout route
 @app.route('/logout')
 def logout():
     """Handle logout of user."""
 
-    # TODO IMPLEMENT THIS
-    # pop the user from the session
     do_logout()
     
     return redirect('/login') #*route works
@@ -212,11 +210,13 @@ def stop_following(follow_id):
     return redirect(f"/users/{g.user.id}/following")
 
 
+    # Todo IMPLEMENT THIS
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():
     """Update profile for current user."""
+    
+  
 
-    # Todo IMPLEMENT THIS
 
 
 @app.route('/users/delete', methods=["POST"])
