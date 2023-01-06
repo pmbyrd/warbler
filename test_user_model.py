@@ -201,8 +201,7 @@ class UserModelTestCase(TestCase):
     def test_valid_authentication(self):
         """Test that a user can be authenticated with a valid username and password."""
         
-        u = User.authenticate(self.u1.username, "password")
-        self.assertIsNotNone(u)
+        u = User.authenticate(self.u1.username, "testpassword")
         self.assertEqual(u.id, self.u_id_1)
         
     # Check for failed authentication
