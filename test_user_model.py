@@ -7,6 +7,7 @@
 
 import os
 from unittest import TestCase
+from sqlalchemy import exc
 from app import app
 from models import db, User, Message, Follows
 
@@ -52,20 +53,51 @@ class UserModelTestCase(TestCase):
 
         self.client = app.test_client()
         
-        u = User(
+        u1 = User(
             email="test@test.com",
             username="testuser",
-            password="HASHED_PASSWORD", 
+            password="testpassword", 
             bio = "test bio",
             location = "test location",
             image_url = "test image",
             header_image_url = "test header image"
         )
         
-        db.session.add(u)
+        u2 = User(
+            email="test2@test.com",
+            username="testuser2",
+            password="testpassword2",
+            bio="test bio2",
+            location="test location2",
+            image_url="test image2",
+            header_image_url="test header image2"
+        )
+        
+        db.session.add(u1)
+        db.session.add(u2)
         db.session.commit()
         
-        self.u_id = u.id
+        # *When dealing with foreign keys, you need to commit the data to the database before you can use it in the test
+        
+        u_id_1 = 1
+        u1.id = u_id_1
+        
+        u_id_2 = 2
+        u2.id = u_id_2
+        
+        db.session.commit()
+        
+        u1 = User.query.get(u_id_1)
+        u2 = User.query.get(u_id_2)
+        
+        # *Reassign the user objects to the ones that are in the database
+        self.u1 = u1
+        self.u_id_1 = u_id_1
+        
+        self.u2 = u2
+        self.u_id_2 = u_id_2
+        
+        self.client = app.test_client()
         
     def tearDown(self):
         """Clean up fouled transactions."""
@@ -86,25 +118,104 @@ class UserModelTestCase(TestCase):
             image_url = "test image",
             header_image_url = "test header image"
         )
+        
+        db.session.add(u)
+        db.session.commit()
         # User should have no messages & no followers
         self.assertEqual(len(u.messages), 0)
         self.assertEqual(len(u.followers), 0)
         self.assertEqual(len(u.following), 0)
         
-        # test is_following working when following user2
+        #Test if user is following another user
+    def test_user_follows(self):
+        """Test if user is following another user"""
         
-        # test is_following working with not following user2
+        self.u1.following.append(self.u2)
+        db.session.commit()
         
-        # test is_followed_by working when user2 is following user1
+        self.assertEqual(len(self.u1.following), 1)
+        self.assertEqual(len(self.u2.following), 0)
+        self.assertEqual(len(self.u1.followers), 0)
+        self.assertEqual(len(self.u2.followers), 1)
         
-        # test is_followed_by working when user2 is not following user1
+        
+        # test is_followed_by working when user2 is following user1 
+    def test_is_followed(self):
+        """Test is_followed method works to show if user is followed by another user"""
+        
+        self.u1.following.append(self.u2)
+        db.session.commit()
+        
+        self.assertTrue(self.u2.is_followed_by(self.u1))
+        self.assertFalse(self.u1.is_followed_by(self.u2))
         
         # test User.create successfully creates a new user given valid credentials
-        
         # test User.create fails to create a new user if any of the validations (e.g. uniqueness, non-nullable fields) fail
+    def test_create_user(self):
+        """Test that a new user can be created and saved to the database."""
+     
+        test_u = User.signup("testuser3", "test3@test.com", "testpassword3", None)
+        uid = 3
+        test_u.id = uid
+        db.session.commit()
         
-        # test User.authenticate successfully returns a user when given a valid username and password
+        test_u = User.query.get(uid)
+        # Test that a new user can be created and saved to the database
         
-        # test user.authenticate returns False when the username is invalid
+        self.assertEqual(test_u.username, "testuser3")
+        self.assertEqual(test_u.email, "test3@test.com")
+        # hashed password should start with $2b$
+        self.assertTrue(test_u.password.startswith("$2b$"), "testpassword3")
         
-        # test user.authenticate returns False when the password is invalid
+    def test_invalid_username(self):
+        """Test that a new user cannot be created with an invalid username."""
+        
+        invalid_user = User.signup(None, "test@test.com", "testpassword", None)
+        
+        uid = 999
+        invalid_user.id = uid
+        # Must account for the error that will be raised
+        with self.assertRaises(exc.IntegrityError) as context:
+            db.session.commit()
+            
+    def test_invalid_email(self):
+        """Test that a new user cannot be created with an invalid email."""
+        
+        invalid_user = User.signup("testuser", None, "testpassword", None)
+        
+        uid = 999
+        invalid_user.id = uid
+        # Must account for the error that will be raised
+        with self.assertRaises(exc.IntegrityError) as context:
+            db.session.commit()
+            
+    def test_invalid_password(self):
+        """Test that a new user cannot be created with an invalid password."""
+        
+        # do not need to account for user only checking invalid password
+        with self.assertRaises(ValueError) as context:
+            User.signup("testuser", "test@test.com", None, None)
+    
+    # Check for authentication
+    
+    def test_valid_authentication(self):
+        """Test that a user can be authenticated with a valid username and password."""
+        
+        u = User.authenticate(self.u1.username, "password")
+        self.assertIsNotNone(u)
+        self.assertEqual(u.id, self.u_id_1)
+        
+    # Check for failed authentication
+    def test_invalid_username(self):
+        """Test that a user cannot be authenticated with an invalid username."""
+        
+        self.assertFalse(User.authenticate("invalidusername", "password"))
+        
+    def test_invalid_password(self):
+        """Test that a user cannot be authenticated with an invalid password."""
+        
+        self.assertFalse(User.authenticate(self.u1.username, "invalidpassword"))
+            
+        
+        
+    
