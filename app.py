@@ -323,15 +323,17 @@ def homepage():
     - anon users: no messages
     - logged in: 100 most recent messages of followed_users
     """
-
+    # Todo filter messages by user and users they follow
     if g.user:
         messages = (Message
                     .query
+                    .filter(Message.user_id.in_([f.id for f in g.user.following]) | (Message.user_id == g.user.id))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
 
-        return render_template('home.html', messages=messages)
+        return render_template('home.html', messages=messages) #*messages are now filtered by user and users they follow
+
 
     else:
         return render_template('home-anon.html')
