@@ -89,4 +89,22 @@ class UserModelTestCase(TestCase):
         # User should have no messages & no followers
         self.assertEqual(len(u.messages), 0)
         self.assertEqual(len(u.followers), 0)
+        self.assertEqual(len(u.following), 0)
         
+        # test is_following working when following user2
+        
+        # test is_following working with not following user2
+        
+        # test is_followed_by working when user2 is following user1
+        
+        # test is_followed_by working when user2 is not following user1
+        
+        # test User.create successfully creates a new user given valid credentials
+        
+        # test User.create fails to create a new user if any of the validations (e.g. uniqueness, non-nullable fields) fail
+        
+        # test User.authenticate successfully returns a user when given a valid username and password
+        
+        # test user.authenticate returns False when the username is invalid
+        
+        # test user.authenticate returns False when the password is invalid

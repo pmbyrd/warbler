@@ -50,6 +50,9 @@ class MessageViewTestCase(TestCase):
                                     image_url=None)
 
         db.session.commit()
+        
+    def tearDown(self):
+        db.session.rollback()
 
     def test_add_message(self):
         """Can use add a message?"""
@@ -71,3 +74,13 @@ class MessageViewTestCase(TestCase):
 
             msg = Message.query.one()
             self.assertEqual(msg.text, "Hello")
+
+    # test message model
+
+    # when logged in can add a message
+
+    # when logged in can delete a message
+
+    # test message view
+    
+    # test message show

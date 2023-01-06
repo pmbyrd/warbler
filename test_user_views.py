@@ -25,5 +25,25 @@ class UserViewsTestCase(TestCase):
             email="test@gmail.com",
             password="testuser")
         
+    # test when logged in can see the follwer and following pages
+    
+    # test when logged out can not see the follwer and following pages
+    
+    # test detail page
+    
+    # test edit page
+    
+    # test following and follower pages
+    
+    # test login page
+    
+    # test show page
+    
+    # test signup page
+    
+    # home-anon page
+    
+    # test home page
+    
     
             
