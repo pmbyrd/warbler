@@ -77,7 +77,7 @@ class UserModelTestCase(TestCase):
         
         User.query.delete()
         
-        u = User(
+        u1 = User(
             email="testemail@test.com",
             username="testusername",
             password="testpassword", 
@@ -86,20 +86,48 @@ class UserModelTestCase(TestCase):
             image_url = "test image",
             header_image_url = "test header image"
         )
+        
+        u2 = User(
+            email = "testemail2@test.com",
+            username = "testusername2",
+            password = "testpassword2",
+            bio = "test bio2",
+            location = "test location2",
+            image_url = "test image2",
+            header_image_url = "test header image2"
+        )
         # User should have no messages & no followers
-        self.assertEqual(len(u.messages), 0)
-        self.assertEqual(len(u.followers), 0)
-        self.assertEqual(len(u.following), 0)
+        self.assertEqual(len(u1.messages), 0)
+        self.assertEqual(len(u1.followers), 0)
+        self.assertEqual(len(u1.following), 0)
         
         # test is_following working when following user2
+    def test_is_following(self):
+        """Test that is_following method works."""
+        
+        u1 = User.query.get(self.u_id)
+        u2 = User.query.get(self.u_id)
+        u1.following.append(u2)
+        db.session.commit()
+        self.assertTrue(u1.is_following(u2))
         
         # test is_following working with not following user2
+    def test_is_not_following(self):
+        """Test if is_following method will fail."""
         
-        # test is_followed_by working when user2 is following user1
-        
-        # test is_followed_by working when user2 is not following user1
+        u1 = User.query.get(self.u_id)
+        u2 = User.query.get(self.u_id)
+        u1.following.append(u2)
+        db.session.commit()
+        self.assertTrue(u2.is_following(u1))
         
         # test User.create successfully creates a new user given valid credentials
+    def test_user_create(self):
+        """Test that User.create successfully creates a new user given valid credentials."""
+        
+        new_user = User.create(
+            
+        )
         
         # test User.create fails to create a new user if any of the validations (e.g. uniqueness, non-nullable fields) fail
         
