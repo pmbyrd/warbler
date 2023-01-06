@@ -222,10 +222,29 @@ def profile():
 
     # todo get user from the db and pass to form, if form is valid, update user and redirect to user detail page
     form = EditUserForm(obj=g.user)
-   
-    # todo if form is not valid, re-present form
-         
-    return render_template('users/edit.html', form=form)
+    if form.validate_on_submit():
+        try:
+            g.user.username = form.username.data
+            g.user.email = form.email.data
+            g.user.image_url = form.image_url.data or User.image_url.default.arg
+            g.user.header_image_url = form.header_image_url.data or User.header_image_url.default.arg
+            g.user.bio = form.bio.data
+            g.user.location = form.location.data
+            # *if the user password matches the db password, update the profile and redirect to user detail page  
+            if User.authenticate(g.user.username, form.password.data):
+                db.session.commit()
+                flash("Profile updated!", "success")
+                return redirect(f'/users/{g.user.id}')
+            
+            else:
+                flash("Invalid password", "danger")
+                return render_template('users/edit.html', form=form)
+            
+        except IntegrityError:
+            flash("Invalid password", "danger")
+            return render_template('users/edit.html', form=form)
+        
+    return render_template('users/edit.html', form=form)  
 
 
 @app.route('/users/delete', methods=["POST"])
