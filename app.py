@@ -26,6 +26,10 @@ connect_db(app)
 
 
 ##############################################################################
+# Step 7
+# *The g object is a special object that is unique for each request. It is used to store data that might be accessed by multiple functions during the request. The g object is reset with each request.*
+# *The before_request decorator registers a function to run before each request. In this instance it is being intialized to hold the user in the session storage and keep the user in storage before each request.
+# *This stores authentication information in a global variable that can be accessed in vaiours routes and functions in the app.py file.
 # User signup/login/logout
 
 
@@ -297,6 +301,7 @@ def messages_show(message_id):
     return render_template('messages/show.html', message=msg)
 
 
+# *This route already works
 @app.route('/messages/<int:message_id>/delete', methods=["POST"])
 def messages_destroy(message_id):
     """Delete a message."""
@@ -310,6 +315,26 @@ def messages_destroy(message_id):
     db.session.commit()
 
     return redirect(f"/users/{g.user.id}")
+
+
+# Todo route to like a message
+# /users/add_like/{{ msg.id }}
+@app.route('/users/add_like/<int:message_id>', methods=["POST"])
+def like_message(message_id):
+    """Like a message."""
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    # access the message and append it to the user's liked messages
+    # try adding in the like as the user to the message's likes
+    # get the form from the page and like the message
+    liked_message = Message.query.get(message_id)
+    g.user.likes.append(liked_message)
+    import pdb; pdb.set_trace()
+    db.session.commit()
+    
+    return redirect('/')
 
 
 ##############################################################################
