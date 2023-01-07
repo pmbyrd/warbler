@@ -52,16 +52,23 @@
               <a href="/users/{{ msg.user.id }}">@{{ msg.user.username }}</a>
               <span class="text-muted">{{ msg.timestamp.strftime('%d %B %Y') }}</span>
               <p>{{ msg.text }}</p>
+              {% if msg.likes | length > 0 %}
+                <p class="text-muted"> {{ msg.likes | length }} likes</p>
+              {% endif %}
             </div>
+            <div>
             <form method="POST" action="/users/add_like/{{ msg.id }}" id="messages-form">
-              <button class="
+              <span>
+                <button class="
                 btn 
                 btn-sm 
                 {{'btn-primary' if msg.id in likes else 'btn-secondary'}}"
-              >
+                >
                 <i class="fa fa-thumbs-up"></i> 
               </button>
-            </form>
+            </span>
+          </form>
+        </div>
           </li>
         {% endfor %}
       </ul>

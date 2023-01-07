@@ -14,7 +14,7 @@ app = Flask(__name__)
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgresql:///warbler-test'))
+    os.environ.get('DATABASE_URL', 'postgresql:///warbler'))
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
@@ -326,13 +326,12 @@ def like_message(message_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
     
-    # access the message and append it to the user's liked messages
-    # try adding in the like as the user to the message's likes
-    # get the form from the page and like the message
-    liked_message = Message.query.get(message_id)
-    g.user.likes.append(liked_message)
-    import pdb; pdb.set_trace()
+    # get the msg from the db
+    msg = Message.query.get(message_id)
+    # append the msg to the user likes
+    g.user.likes.append(msg)
     db.session.commit()
+    flash("Message liked!", "success")
     
     return redirect('/')
 
