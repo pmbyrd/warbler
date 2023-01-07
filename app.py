@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, flash, redirect, session, g
 from sqlalchemy.exc import IntegrityError
 
 from forms import UserAddForm, LoginForm, MessageForm, EditUserForm
-from models import db, connect_db, User, Message
+from models import db, connect_db, User, Message, Likes
 
 CURR_USER_KEY = "curr_user"
 
@@ -319,7 +319,7 @@ def messages_destroy(message_id):
 
 # Todo route to like a message
 # /users/add_like/{{ msg.id }}
-@app.route('/users/add_like/<int:message_id>', methods=["POST"])
+@app.route('/users/add-like/<int:message_id>', methods=["POST"])
 def like_message(message_id):
     """Like a message."""
     if not g.user:
@@ -328,12 +328,15 @@ def like_message(message_id):
     
     # get the msg from the db
     msg = Message.query.get(message_id)
+    
     # append the msg to the user likes
     g.user.likes.append(msg)
     db.session.commit()
     flash("Message liked!", "success")
     
     return redirect('/')
+
+# Todo add a route for removing a like
 
 
 ##############################################################################
@@ -355,8 +358,10 @@ def homepage():
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
+        
+        likes = Likes.query.all()
 
-        return render_template('home.html', messages=messages) #*messages are now filtered by user and users they follow
+        return render_template('home.html', messages=messages, likes=likes) #*messages are now filtered by user and users they follow
 
 
     else:
