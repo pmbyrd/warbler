@@ -337,6 +337,22 @@ def like_message(message_id):
     return redirect('/')
 
 # Todo add a route for removing a like
+@app.route('/users/remove-like/<int:message_id>', methods=["POST"])
+def unlike_message(message_id):
+    """Unlike a message."""
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    # get the msg from the db
+    msg = Message.query.get(message_id)
+    
+    # remove the msg from the user likes
+    g.user.likes.remove(msg)
+    db.session.commit()
+    flash("Message unliked!", "success")
+    
+    return redirect('/')
 
 
 ##############################################################################
