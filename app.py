@@ -354,6 +354,20 @@ def unlike_message(message_id):
     
     return redirect('/')
 
+# Todo add a route for all liked messages
+@app.route('/messages/likes')
+def show_likes():
+    """Show all liked messages."""
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    # get all likes from the db
+    user = User.query.get(g.user.id)
+    likes = Likes.query.all()
+    
+    return render_template('messages/likes.html', likes=likes, user=user)
+
 
 ##############################################################################
 # * Homepage and error pages
