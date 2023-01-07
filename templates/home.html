@@ -33,6 +33,12 @@
                 <a href="/users/{{ g.user.id }}/followers">{{ g.user.followers | length }}</a>
               </h4>
             </li>
+            <li class="stat">
+              <p class="small">Likes</p>
+              <h4>
+                <a href="/messages/likes">{{ g.user.likes | length }}</a>
+              </h4>
+            </li>
           </ul>
         </div>
       </div>
@@ -55,17 +61,38 @@
               
             </div>
             <div>
-            <form method="POST" action="/users/add_like/{{ msg.id }}" id="messages-form">
+             <!-- change the card so that if the user has liked another user already than thumbs up is not than thumbs down -->
+             {% if msg in g.user.likes %}
+             <form method="POST" action="/users/remove-like/{{ msg.id }}" id="messages-form">
               <span>
                 <button class="
                 btn 
                 btn-sm 
-                {{'btn-primary' if msg.id in likes else 'btn-secondary'}}"
-                >
-                <i class="fa fa-thumbs-up"></i> 
+                btn-warning">
+                <i class="fa fa-thumbs-down">
+                  
+                </i> 
               </button>
             </span>
           </form>
+              {% else %}
+              <form method="POST" action="/users/add-like/{{ msg.id }}" id="messages-form">
+                <span>
+                  <button class="
+                  btn 
+                  btn-sm 
+                  {{'btn-primary' if msg.id in likes else 'btn-secondary'}}">
+                  <i class="fa fa-thumbs-up">
+                    <!-- get the number of times a message has been liked -->
+                   
+
+                  </i> 
+                </button>
+              </span>
+            </form>
+
+              {% endif %}
+
         </div>
           </li>
         {% endfor %}

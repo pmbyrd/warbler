@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="warbler-hero" class="full-width">
+  <div class="image-wrapper">
+    <img src="{{ user.header_image_url }}" alt="" class="card-hero">
+  </div>
+</div>
+
+       <!-- get all the user liked messages and display them to the screen -->
+       <ul>
+         {% for message in user.likes %}
+           <div class="card">
+              <div class="card-body">
+                <div class="card-text">
+                  {{ message.text }}
+                </div>
+                <div class="card-text">
+                  <small class="text-muted">{{ message.timestamp }}</small>
+                </div>
+                <div class="card-text">
+                  <small class="text-muted">@{{ message.user.username }}</small>
+                </div>
+              </div>
+           </div>
+                {%endfor%}
+
+       </ul>
+
+            
+
+{% endblock %}
