@@ -13,6 +13,7 @@ app = Flask(__name__)
 
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
+# *necessary for deployment if using a host that is not local
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     os.environ.get('DATABASE_URL', 'postgresql:///warbler'))
 
@@ -23,16 +24,29 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 # toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
-# db.create_all()
+# ?db.create_all() ? #*not sure if this is necessary
+# ? db.drop_all() #*not sure if this is necessary
+# ? when would a seed file be necessary?
 
 ##############################################################################
 # Step 7
-# *The g object is a special object that is unique for each request. It is used to store data that might be accessed by multiple functions during the request. The g object is reset with each request.*
-# *The before_request decorator registers a function to run before each request. In this instance it is being intialized to hold the user in the session storage and keep the user in storage before each request.
-# *This stores authentication information in a global variable that can be accessed in vaiours routes and functions in the app.py file.
 # User signup/login/logout
 
+# ?What is the purpose of add_user_to_g?
+# *The session object is a special dictionary that stores data across requests. When validation succeeds, the user’s id is stored in the session. The contents of the session cookie are cryptographically signed, so that it can’t be tampered with. The session is stored in a cookie that is sent to the browser, and the browser then sends it back with subsequent requests.*
+# 
+# ?How is the logged in user being kept track of?
+# *This stores authentication information in a global variable that can be accessed in vaiours routes and functions in the app.py file.
 
+# ?What is Flask’s g object?
+# *The g object is a special object that is unique for each request. It is used to store data that might be accessed by multiple functions during the request. The g object is reset with each request.*
+# *****g is a global can be accessed in any function in the app.py file. session is a global that can be accessed in any function in the app.py file.*****  
+
+# ?What does @app.before_request mean?
+# *The before_request decorator registers a function to run before each request. In this instance it is being intialized to hold the user in the session storage and keep the user in storage before each request.
+
+
+# Store the logged in user in Flask global
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
@@ -43,7 +57,7 @@ def add_user_to_g():
     else:
         g.user = None
 
-
+# **This is a helper function that is used in the login and logout routes. It is not a route itself.
 def do_login(user):
     """Log in user."""
 
@@ -56,7 +70,7 @@ def do_logout():
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
 
-
+# Preexisting route
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
     """Handle user signup.
@@ -92,7 +106,7 @@ def signup():
     else:
         return render_template('users/signup.html', form=form)
 
-
+# preexisting route
 @app.route('/login', methods=["GET", "POST"])
 def login():
     """Handle user login."""
@@ -113,6 +127,7 @@ def login():
     return render_template('users/login.html', form=form)
 
 #Todo implement logout route
+# uses preexisting do_logout function
 @app.route('/logout')
 def logout():
     """Handle logout of user."""
@@ -124,7 +139,7 @@ def logout():
 
 ##############################################################################
 # *General user routes:
-
+# preexisting route
 @app.route('/users')
 def list_users():
     """Page with listing of users.
@@ -141,7 +156,7 @@ def list_users():
 
     return render_template('users/index.html', users=users)
 
-
+# preexisting route
 @app.route('/users/<int:user_id>')
 def users_show(user_id):
     """Show user profile."""
@@ -156,10 +171,10 @@ def users_show(user_id):
                 .order_by(Message.timestamp.desc())
                 .limit(100)
                 .all())
-    # import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace() *ran as a test to see user relations and messages that were being pulled from the database and in preexisting routes.
     return render_template('users/show.html', user=user, messages=messages)
 
-
+# preexisting route. Required updates in the template.
 @app.route('/users/<int:user_id>/following')
 def show_following(user_id):
     """Show list of people this user is following."""
@@ -171,7 +186,7 @@ def show_following(user_id):
     user = User.query.get_or_404(user_id)
     return render_template('users/following.html', user=user)
 
-
+# preexisting route. Required updates in the template.
 @app.route('/users/<int:user_id>/followers')
 def users_followers(user_id):
     """Show list of followers of this user."""
@@ -183,7 +198,7 @@ def users_followers(user_id):
     user = User.query.get_or_404(user_id)
     return render_template('users/followers.html', user=user)
 
-
+# preexisting route. Required updates in the template.  
 @app.route('/users/follow/<int:follow_id>', methods=['POST'])
 def add_follow(follow_id):
     """Add a follow for the currently-logged-in user."""
@@ -198,7 +213,7 @@ def add_follow(follow_id):
 
     return redirect(f"/users/{g.user.id}/following")
 
-
+# preexisting route. Required updates in the template.
 @app.route('/users/stop-following/<int:follow_id>', methods=['POST'])
 def stop_following(follow_id):
     """Have currently-logged-in-user stop following this user."""
@@ -245,12 +260,13 @@ def profile():
                 return render_template('users/edit.html', form=form)
             
         except IntegrityError:
+            # ? Not sure if this is the correct way to handle this error
             flash("Invalid password", "danger")
             return render_template('users/edit.html', form=form)
         
     return render_template('users/edit.html', form=form)  
 
-
+# preexisting route
 @app.route('/users/delete', methods=["POST"])
 def delete_user():
     """Delete user."""
@@ -269,7 +285,7 @@ def delete_user():
 
 ##############################################################################
 # * Messages routes:
-
+# preexisting route - checked in web browser and it works
 @app.route('/messages/new', methods=["GET", "POST"])
 def messages_add():
     """Add a message:
@@ -292,7 +308,7 @@ def messages_add():
 
     return render_template('messages/new.html', form=form)
 
-
+# preexisting route - checked in web browser and it works
 @app.route('/messages/<int:message_id>', methods=["GET"])
 def messages_show(message_id):
     """Show a message."""
@@ -300,8 +316,7 @@ def messages_show(message_id):
     msg = Message.query.get(message_id)
     return render_template('messages/show.html', message=msg)
 
-
-# *This route already works
+# preexisting route - checked in web browser and it works
 @app.route('/messages/<int:message_id>/delete', methods=["POST"])
 def messages_destroy(message_id):
     """Delete a message."""
@@ -318,7 +333,6 @@ def messages_destroy(message_id):
 
 
 # Todo route to like a message
-# /users/add_like/{{ msg.id }}
 @app.route('/users/add-like/<int:message_id>', methods=["POST"])
 def like_message(message_id):
     """Like a message."""
@@ -355,6 +369,7 @@ def unlike_message(message_id):
     return redirect('/')
 
 # Todo add a route for all liked messages
+# *this template and route were made by me
 @app.route('/messages/likes')
 def show_likes():
     """Show all liked messages."""
@@ -372,7 +387,7 @@ def show_likes():
 ##############################################################################
 # * Homepage and error pages
 
-
+# Todo update this route to show messages of users that the logged in user follows
 @app.route('/')
 def homepage():
     """Show homepage:

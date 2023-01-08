@@ -18,6 +18,7 @@ from models import db, User, Message, Follows
 
 # os.environ['DATABASE_URL'] = "postgresql:///warbler-test"
 # os.environ['TESTING'] = 'True'
+# *these configs are set up for an app running in Flask, they are not configrued for deployment
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///warbler-test'
 app.config['SQLALCHEMY_ECHO'] = False
@@ -64,7 +65,6 @@ class UserModelTestCase(TestCase):
         )
         
         u2 = User(
-<<<<<<< HEAD
             email="testemail@test.com",
             username="testusername",
             password="testpassword", 
@@ -85,19 +85,6 @@ class UserModelTestCase(TestCase):
         )
         
         db.session.add_all([u, u2, u3])
-=======
-            email="test2@test.com",
-            username="testuser2",
-            password="testpassword2",
-            bio="test bio2",
-            location="test location2",
-            image_url="test image2",
-            header_image_url="test header image2"
-        )
-        
-        db.session.add(u1)
-        db.session.add(u2)
->>>>>>> testing
         db.session.commit()
         
         # *When dealing with foreign keys, you need to commit the data to the database before you can use it in the test

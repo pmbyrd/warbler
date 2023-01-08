@@ -18,6 +18,7 @@ from models import db, User, Message, Follows, Likes
 # os.environ['DATABASE_URL'] = "postgresql:///warbler-test"
 # os.environ['TESTING'] = 'True'
 
+# *these configs are set up for an app running in Flask, they are not configrued for deployment
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///warbler-test'
 app.config['SQLALCHEMY_ECHO'] = False
 

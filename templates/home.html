@@ -33,6 +33,7 @@
                 <a href="/users/{{ g.user.id }}/followers">{{ g.user.followers | length }}</a>
               </h4>
             </li>
+            <!-- *Added in -->
             <li class="stat">
               <p class="small">Likes</p>
               <h4>
@@ -83,7 +84,7 @@
                   btn-sm 
                   {{'btn-primary' if msg.id in likes else 'btn-secondary'}}">
                   <i class="fa fa-thumbs-up">
-                    <!-- get the number of times a message has been liked -->
+                 
                    
 
                   </i> 

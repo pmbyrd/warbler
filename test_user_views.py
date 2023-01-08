@@ -7,6 +7,7 @@ from models import db, User, Message, Follows, Likes
 from app import app, CURR_USER_KEY
 
 # Set up Flask app and test client
+# *these configs are set up for an app running in Flask, they are not configrued for deployment
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///warbler-test'
 app.config['SQLALCHEMY_ECHO'] = False

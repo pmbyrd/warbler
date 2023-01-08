@@ -1,4 +1,5 @@
 """SQLAlchemy models for Warbler."""
+# *Models were not updated but were checked in testing
 
 from datetime import datetime
 

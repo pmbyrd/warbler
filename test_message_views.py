@@ -29,6 +29,7 @@ from app import app, CURR_USER_KEY
 db.create_all()
 
 # Don't have WTForms use CSRF at all, since it's a pain to test
+# *these configs are set up for an app running in Flask, they are not configrued for deployment
 
 app.config['WTF_CSRF_ENABLED'] = False
 
@@ -124,18 +125,6 @@ class MessageViewTestCase(TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertIn(b'Hello', resp.data)
     
-    # test message show route without user in session
-    # def test_invalid_message_show(self):
-    #     """Test message show route without user in session"""
-        
-    #     # get the client session and check for message that does not exist
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
-                
-    #         resp = c.get(f'/messages/10000000')
-            
-    #         self.assertEqual(resp.status_code, 404)
             
 
     # when logged in can delete a message
