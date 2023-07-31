@@ -13,7 +13,7 @@ Flask-Bcrypt==1.0.1
 Flask-DebugToolbar==0.10.1
 Flask-SQLAlchemy==2.3.2
 Flask-WTF==1.0.1
-gunicorn==21.2.0
+gunicorn==19.7.1
 importlib-metadata==6.0.0
 ipython-genutils==0.2.0
 itsdangerous==0.24
